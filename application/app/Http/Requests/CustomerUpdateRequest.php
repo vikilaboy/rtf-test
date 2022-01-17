@@ -24,7 +24,7 @@ class CustomerUpdateRequest extends FormRequest
         return [
             'first_name' => ['string', 'min:2', 'max:32'],
             'last_name' => ['string', 'min:2', 'max:32'],
-            'email' => 'unique:users,email,'.$this->customer->id.'|email:rfc,dns|max:255',
+            'email' => 'unique:customers,email,'.$this->customer->id.'|email:rfc,dns|max:255',
             'phone' => ['regex:/(01)[0-9]{9}/'],
             'priority' => sprintf('in:%s', implode(',', array_values(Customer::$priorities))),
         ];
