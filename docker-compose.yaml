@@ -34,6 +34,7 @@ services:
             - "traefik.http.middlewares.${CONTAINER_NAME}.compress=true"
             - "traefik.http.routers.${CONTAINER_NAME}.rule=HostRegexp(`${APP_HOST}`,`${API_HOST}`)"
             - "traefik.middlewares.headers.browserXSSFilter=true"
+            - "traefik.http.routers.${CONTAINER_NAME}.tls"
             - "traefik.middlewares.headers.contentTypeNosniff=true"
             - "traefik.port=80"
             - "traefix.port=443"
