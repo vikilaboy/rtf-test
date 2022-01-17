@@ -4,9 +4,15 @@ you need to have docker installed
 
 I'm using `traefik` as load balancer so you need that as well
 
+setup the database file using this command in the root `touch application/database/database.sqlite`
+
 setup `.env` file from the root
 
 setup `.env` file from `application` folder
+
+run `php artisan migrate`
+
+optional you can run `php artisan db:seed` to randomly generate chunks of 10 users
 
 ## Customers crud
 
