@@ -1,0 +1,62 @@
+version: '3'
+
+services:
+    php-fpm:
+        build: ./.docker/php-fpm
+        container_name: rtf-php
+        volumes:
+            - ./application:/var/www/html:cached
+        environment:
+            APP_VERSION: dev
+            PHP_EXTENSION_XDEBUG: 0
+            PHP_EXTENSIONS: "gd pdo_sqlite sqlite3"
+            PHP_INI_MEMORY_LIMIT: 512M
+            PHP_INI_ERROR_REPORTING: E_ALL
+            PHP_INI_POST_MAX_SIZE: 200M
+            PHP_INI_UPLOAD_MAX_FILESIZE: 200M
+        labels:
+            - "traefik.enable=false"
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "50m"
+        hostname: php-fpm.rtf.com
+        networks:
+            - backend
+            - common_backend
+    nginx:
+        env_file: ./.env
+        build: ./.docker/nginx
+        container_name: ${CONTAINER_NAME}-nginx
+        restart: always
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.middlewares.${CONTAINER_NAME}.compress=true"
+            - "traefik.http.routers.${CONTAINER_NAME}.rule=HostRegexp(`${APP_HOST}`,`${API_HOST}`)"
+            - "traefik.middlewares.headers.browserXSSFilter=true"
+            - "traefik.middlewares.headers.contentTypeNosniff=true"
+            - "traefik.port=80"
+            - "traefix.port=443"
+            - "traefik.docker.network=traefik_webgateway"
+        environment:
+            - PHP_FPM_SOCK=php-fpm:9000
+            - PHP_POST_MAX_SIZE=512M
+        depends_on:
+            - php-fpm
+        volumes:
+            - ./application:/var/www/html:cached
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "50m"
+        hostname: nginx.${CONTAINER_NAME}.ro
+        networks:
+            - backend
+            - traefik
+networks:
+    traefik:
+        name: traefik_webgateway
+    backend:
+        driver: bridge
+    common_backend:
+        name: common_backend
